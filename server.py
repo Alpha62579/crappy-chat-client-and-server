@@ -31,7 +31,8 @@ def handle_client(conn, addr):
             for i, room in enumerate(chatrooms):
                 if conn in chatrooms[room]['connections']:
                     break
-            trigger_message(f"{chatrooms[room.lower()]['connections'][conn]} has disconnected.", "SERVER", chatrooms[room.lower()]['connections'])
+            trigger_message(f"{chatrooms[room.lower()]['connections'][conn]} has disconnected.", "SERVER",
+                            chatrooms[room.lower()]['connections'])
             print(f"{chatrooms[room.lower()]['connections'][conn]}:{addr} has disconnected.")
             break
         if raw_message:
@@ -64,7 +65,8 @@ def handle_client(conn, addr):
                                 header = json.dumps({"type": "packet.kick"}).encode(FORMAT)
                                 con.send(header)
                                 con.close()
-                                trigger_message(f"{byebyeguy} has been kicked from this chatroom!", "SERVER", chatrooms[room.lower()]['connections'])
+                                trigger_message(f"{byebyeguy} has been kicked from this chatroom!", "SERVER",
+                                                chatrooms[room.lower()]['connections'])
                         if con:
                             chatrooms[raw_json['room']]['connections'].pop(con)
                         else:
@@ -74,23 +76,34 @@ def handle_client(conn, addr):
                         send("Welp, you aren't an OP in the room.", conn)
                         continue
                 print(f"[{chatrooms[room.lower()]['connections'][conn]}:{addr}:{raw_json['room'].lower()}] {msg}")
-                trigger_message(msg, chatrooms[room.lower()]['connections'][conn], chatrooms[room.lower()]['connections'])
+                trigger_message(msg, chatrooms[room.lower()]['connections'][conn],
+                                chatrooms[room.lower()]['connections'])
             elif raw_json['type'] == 'packet.identify':
                 if raw_json['room'].lower() not in chatrooms:
-                    chatrooms[raw_json['room'].lower()] = {"connections": {conn: raw_json['name']}, "ops": [raw_json['name']], "password": raw_json[
-                        'password'] if "password" in raw_json.keys() else None}
-                    trigger_message(f"{chatrooms[raw_json['room'].lower()]['connections'][conn]} has connected.", "SERVER", chatrooms[room.lower()]['connections'])
-                    send(f"Chatroom {raw_json['room'].lower()} has been created successfully. Password: {raw_json['password']}", conn)
+                    chatrooms[raw_json['room'].lower()] = {"connections": {conn: raw_json['name']},
+                                                           "ops": [raw_json['name']], "password": raw_json[
+                            'password'] if "password" in raw_json.keys() else None}
+                    trigger_message(f"{chatrooms[raw_json['room'].lower()]['connections'][conn]} has connected.",
+                                    "SERVER", chatrooms[room.lower()]['connections'])
+                    send(f"Chatroom "
+                         f"{raw_json['room'].lower()}"
+                         " has been created successfully." + f" Password: {raw_json['password']}" if raw_json[
+                                                                                                         'password'] is not None else "",
+                         conn)
                     print(f"{chatrooms[room.lower()]['connections'][conn]}:{addr} has connected")
                     print(f"Created chatroom {raw_json['room'].lower()}")
                 else:
-                    if chatrooms[raw_json['room'].lower()]['password'] == raw_json['password'] or chatrooms[raw_json['room'].lower()]['password'] is None:
+                    if chatrooms[raw_json['room'].lower()]['password'] == raw_json['password'] or \
+                            chatrooms[raw_json['room'].lower()]['password'] is None:
                         for connection in chatrooms[room.lower()]['connections']:
                             if connection == raw_json['name']:
-                                send("Your name is currently being used by someone else. Please use another name.", conn)
+                                send("Your name is currently being used by someone else. Please use another name.",
+                                     conn)
                         chatrooms[room.lower()]['connections'][conn] = raw_json['name']
-                        trigger_message(f"{chatrooms[room.lower()]['connections'][conn]} has connected.", "SERVER", chatrooms[room.lower()]['connections'])
-                        print(f"{chatrooms[raw_json['room']]['connections'][conn]}:{addr}:{raw_json['room'].lower()} has connected.")
+                        trigger_message(f"{chatrooms[room.lower()]['connections'][conn]} has connected.", "SERVER",
+                                        chatrooms[room.lower()]['connections'])
+                        print(
+                            f"{chatrooms[raw_json['room']]['connections'][conn]}:{addr}:{raw_json['room'].lower()} has connected.")
                     else:
                         send("Invalid password.", conn)
                         break
