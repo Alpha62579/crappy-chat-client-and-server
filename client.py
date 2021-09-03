@@ -4,6 +4,7 @@ import threading
 import sys
 import os
 from dotenv import load_dotenv
+import time
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
@@ -11,10 +12,10 @@ from prompt_toolkit.patch_stdout import patch_stdout
 load_dotenv()
 
 stop = True
-HEADER = 256
+HEADER = 1024
 PORT = int(os.getenv("PORT", 62579))
 FORMAT = 'utf-8'
-DISCONNECT_MESSAGE = "!DISCONNECT"
+DISCONNECT_MESSAGE = "//disconnect"
 SERVER = os.getenv("HOST")
 ADDR = (SERVER, PORT)
 
@@ -33,8 +34,9 @@ client.send(packet_data.encode(FORMAT))
 def send(msg):
     message = msg.encode(FORMAT)
     msg_length = len(message)
-    send_length = json.dumps({"type": "packet.message", "length": msg_length, "room": chatroom})
-    client.send(send_length.encode(FORMAT))
+    send_length = json.dumps({"type": "packet.message", "length": msg_length, "room": chatroom}).encode(FORMAT)
+    send_length += b' ' * (HEADER - len(send_length))
+    client.send(send_length)
     client.send(message)
 
 
@@ -70,6 +72,7 @@ def main():
                     send(text)
         except KeyboardInterrupt:
             send(DISCONNECT_MESSAGE)
+            time.sleep(1)
             sys.exit(0)
 
 

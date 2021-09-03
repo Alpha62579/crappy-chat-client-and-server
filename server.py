@@ -9,7 +9,7 @@ PORT = os.getenv("PORT", 62579)
 SERVER = "0.0.0.0"
 ADDR = (SERVER, PORT)
 
-HEADER = 256
+HEADER = 1024
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "//disconnect"
 KICK_MESSAGE = "/kick"
@@ -40,6 +40,7 @@ def handle_client(conn, addr):
             room = raw_json['room']
             if raw_json['type'] == 'packet.message':
                 msg_length = raw_json['length']
+                time.sleep(0.2)
                 msg = conn.recv(msg_length).decode(FORMAT)
                 if msg == DISCONNECT_MESSAGE:
                     name = chatrooms[raw_json['room']]['connections'][conn]
@@ -94,9 +95,9 @@ def handle_client(conn, addr):
                     print(f"Created chatroom {raw_json['room'].lower()}")
                 else:
                     if chatrooms[raw_json['room'].lower()]['password'] == raw_json['password'] or \
-                            chatrooms[raw_json['room'].lower()]['password'] is None:
+                            chatrooms[raw_json['room'].lower()]['password'] is '':
                         for connection in chatrooms[room.lower()]['connections']:
-                            if connection == raw_json['name']:
+                            if chatrooms[room.lower()]['connections'][connection] == raw_json['name']:
                                 send("Your name is currently being used by someone else. Please use another name.",
                                      conn)
                         chatrooms[room.lower()]['connections'][conn] = raw_json['name']
@@ -115,9 +116,9 @@ def handle_client(conn, addr):
 def send(msg, conn):
     message = msg.encode(FORMAT)
     msg_length = len(message)
-    send_length = json.dumps({"type": "packet.message", "length": msg_length, "name": "SERVER"})
-    conn.send(send_length.encode(FORMAT))
-    time.sleep(0.2)
+    send_length = json.dumps({"type": "packet.message", "length": msg_length, "name": "SERVER"}).encode(FORMAT)
+    send_length += b' ' * (HEADER - len(send_length))
+    conn.send(send_length)
     conn.send(message)
 
 
@@ -131,8 +132,11 @@ def trigger_message(message, sender, connections):
             msg_length = json.dumps({"type": "packet.message", "length": len(message), "name": sender})
             send_length = msg_length.encode(FORMAT)
             send_length += b' ' * (HEADER - len(send_length))
-            connection.send(send_length)
-            connection.send(message)
+            try:
+                connection.send(send_length)
+                connection.send(message)
+            except:
+                pass
 
 
 def start():
