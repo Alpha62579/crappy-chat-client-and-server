@@ -2,16 +2,17 @@ import json
 import socket
 import threading
 import sys
+import os
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
 
 stop = True
 HEADER = 256
-PORT = 62579
+PORT = os.getenv("PORT", 62579)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
-SERVER = "192.168.137.1"
+SERVER = os.getenv("HOST", "0.0.0.0")
 ADDR = (SERVER, PORT)
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
