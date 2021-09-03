@@ -12,7 +12,7 @@ load_dotenv()
 
 stop = True
 HEADER = 256
-PORT = os.getenv("PORT", 62579)
+PORT = int(os.getenv("PORT", 62579))
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
 SERVER = os.getenv("HOST")
