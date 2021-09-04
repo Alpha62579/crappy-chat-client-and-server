@@ -4,6 +4,7 @@ import threading
 import sys
 import os
 from dotenv import load_dotenv
+from getpass import getpass
 import time
 
 from prompt_toolkit import PromptSession
@@ -24,9 +25,8 @@ client.connect(ADDR)
 
 name = input("Enter a name: ")
 chatroom = input("Enter a chatroom name: ")
-password = input(
-    "Enter a password, this will be used for authentication if the chatroom doesn't exist or to join the existing "
-    "chatroom: ")
+password = getpass(
+    prompt="Enter a password, this will be used for authentication (Leave this blank if you don't want a password or there isn't one).")
 packet_data = json.dumps({"type": "packet.identify", "name": name, "room": chatroom, "password": password})
 client.send(packet_data.encode(FORMAT))
 
@@ -54,6 +54,10 @@ def on_message(conn):
             if msg_length['type'] == 'packet.kick':
                 print("You got kicked from this chatroom.")
                 stop = False
+                sys.exit(0)
+            elif msg_length['type'] == 'packet.disconnect':
+                send(DISCONNECT_MESSAGE)
+                time.sleep(1)
                 sys.exit(0)
             msg = conn.recv(msg_length['length']).decode(FORMAT)
             print(f"Message received from {msg_length['name']}: {str(msg)}")

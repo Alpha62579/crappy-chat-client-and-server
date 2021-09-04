@@ -87,19 +87,23 @@ def handle_client(conn, addr):
                     trigger_message(f"{chatrooms[raw_json['room'].lower()]['connections'][conn]} has connected.",
                                     "SERVER", chatrooms[room.lower()]['connections'])
                     send(f"Chatroom "
-                         f"{raw_json['room'].lower()}"
+                         f"\"{raw_json['room'].lower()}\""
                          " has been created successfully." + f" Password: {raw_json['password']}" if raw_json[
-                                                                                                         'password'] is not None else "",
+                                                                                                         'password'] != "" else "",
                          conn)
                     print(f"{chatrooms[room.lower()]['connections'][conn]}:{addr} has connected")
                     print(f"Created chatroom {raw_json['room'].lower()}")
                 else:
+                    send(f"Chatroom \"{raw_json['room'].lower()}\" has been found. Attempting to connect to it...",
+                         conn)
                     if chatrooms[raw_json['room'].lower()]['password'] == raw_json['password'] or \
-                            chatrooms[raw_json['room'].lower()]['password'] is '':
+                            chatrooms[raw_json['room'].lower()]['password'] == '':
                         for connection in chatrooms[room.lower()]['connections']:
                             if chatrooms[room.lower()]['connections'][connection] == raw_json['name']:
                                 send("Your name is currently being used by someone else. Please use another name.",
                                      conn)
+                                header = json.dumps({"type": "packet.disconnect"}).encode(FORMAT)
+                                conn.send(header)
                         chatrooms[room.lower()]['connections'][conn] = raw_json['name']
                         trigger_message(f"{chatrooms[room.lower()]['connections'][conn]} has connected.", "SERVER",
                                         chatrooms[room.lower()]['connections'])
