@@ -3,6 +3,8 @@ This is my first attempt at making a chat client in Python using the sockets lib
 
 **Fair Warning: This is buggy and no part of the communication between the server and the client is encrypted.**
 
+Here have a better chat application in Python (here.)[https://github.com/topics/chatroom?l=python]
+
 (P.S I can't even read the code that well at the end of the day)
 
 
