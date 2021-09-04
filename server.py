@@ -68,8 +68,6 @@ def handle_client(conn, addr):
                                 con.close()
                                 trigger_message(f"{byebyeguy} has been kicked from this chatroom!", "SERVER",
                                                 chatrooms[room.lower()]['connections'])
-                        if con:
-                            chatrooms[raw_json['room']]['connections'].pop(con)
                         else:
                             send(f"No one by the name of {byebyeguy} is online in the chatroom.", conn)
                             continue
