@@ -36,8 +36,13 @@ def send(msg):
     msg_length = len(message)
     send_length = json.dumps({"type": "packet.message", "length": msg_length, "room": chatroom}).encode(FORMAT)
     send_length += b' ' * (HEADER - len(send_length))
-    client.send(send_length)
-    client.send(message)
+    try:
+        client.send(send_length)
+        client.send(message)
+    except:
+        print("An error occurred while sending. The server may have closed.")
+        time.sleep(1)
+        sys.exit(1)
 
 
 def on_message(conn):
